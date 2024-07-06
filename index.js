@@ -1,10 +1,10 @@
-const http = require("http")
-const express = require("express")
-const { Server } = require("socket.io")
-const { createClient } = require("@supabase/supabase-js")
-const cors = require("cors")
-const morgan = require("morgan")
-require("dotenv").config()
+import http from "http"
+import express from "express"
+import { Server } from "socket.io"
+import { createClient } from "@supabase/supabase-js"
+import cors from "cors"
+import morgan from "morgan"
+import "dotenv/config"
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -125,5 +125,3 @@ const port = process.env.PORT
 httpServer.listen(port, () => {
   console.log(`Express server listening at http://localhost:${port}`)
 })
-
-module.exports = app
