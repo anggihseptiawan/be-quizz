@@ -15,7 +15,7 @@ const app = express()
 app.use(cors())
 
 // You need to create the HTTP server from the Express app
-const httpServer = hhtp.createServer(app)
+const httpServer = http.createServer(app)
 
 // And then attach the socket.io server to the HTTP server
 const io = new Server(httpServer, {
