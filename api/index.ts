@@ -7,8 +7,8 @@ import morgan from "morgan"
 import "dotenv/config"
 
 export const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_API_KEY
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_API_KEY!
 )
 
 const app = express()
