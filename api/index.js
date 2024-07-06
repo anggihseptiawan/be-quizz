@@ -1,21 +1,21 @@
-import { createServer } from "http"
-import express from "express"
-import { Server } from "socket.io"
-import { createClient } from "@supabase/supabase-js"
-import cors from "cors"
-import morgan from "morgan"
-import "dotenv/config"
+const http = require("http")
+const express = require("express")
+const { Server } = require("socket.io")
+const { createClient } = require("@supabase/supabase-js")
+const cors = require("cors")
+const morgan = require("morgan")
+require("dotenv").config()
 
-export const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_API_KEY!
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_API_KEY
 )
 
-export const app = express()
+const app = express()
 app.use(cors())
 
 // You need to create the HTTP server from the Express app
-const httpServer = createServer(app)
+const httpServer = hhtp.createServer(app)
 
 // And then attach the socket.io server to the HTTP server
 const io = new Server(httpServer, {
@@ -125,3 +125,5 @@ const port = process.env.PORT
 httpServer.listen(port, () => {
   console.log(`Express server listening at http://localhost:${port}`)
 })
+
+module.exports = app
