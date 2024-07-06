@@ -11,7 +11,7 @@ export const supabase = createClient(
   process.env.SUPABASE_API_KEY!
 )
 
-const app = express()
+export const app = express()
 app.use(cors())
 
 // You need to create the HTTP server from the Express app
