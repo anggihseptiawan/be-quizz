@@ -20,7 +20,7 @@ const httpServer = http.createServer(app)
 // And then attach the socket.io server to the HTTP server
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173", // Adjust this to your Remix app's URL
+    origin: "https://quizclashs.vercel.app", // Adjust this to your Remix app's URL
     methods: ["GET", "POST"],
     credentials: true,
   },
