@@ -20,7 +20,7 @@ const httpServer = http.createServer(app)
 // And then attach the socket.io server to the HTTP server
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://quizclashs.vercel.app", // Adjust this to your Remix app's URL
+    origin: ["https://quizclashs.vercel.app", "http://localhost:5173"], // Adjust this to your Remix app's URL
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -81,13 +81,18 @@ io.on("connection", (socket) => {
     socket.join(room)
   })
 
-  socket.on("finish", async (player) => {
-    console.log("player", player)
-    const { error } = await supabase.from("wars").delete().eq("player", player)
-    if (error) {
-      console.log("error", error.message)
-      return error.message
-    }
+  socket.on("finish", async ({ room, name }) => {
+    const { error } = await supabase
+      .from("wars")
+      .update({ finish: true })
+      .eq("player", name)
+      .select()
+    if (error) throw Error(error.message)
+
+    const { data, err } = await supabase.from("wars").select()
+    if (err) throw Error(err.message)
+    const players = data.sort((a, z) => z.score - a.score)
+    io.to(room).emit("player-finish", players)
   })
 
   socket.on("set-score", async ({ room, name, score }) => {
