@@ -4,7 +4,12 @@ import { Server } from "socket.io"
 import { createClient } from "@supabase/supabase-js"
 import cors from "cors"
 import morgan from "morgan"
+import { fileURLToPath } from "url"
+import { dirname, join } from "path"
 import "dotenv/config"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -123,6 +128,22 @@ app.use(morgan("tiny"))
 app.get("/", (_, res) => {
   res.send("<h1>Hello world</h1>")
 })
+
+app.use(
+  "/images",
+  express.static(join(__dirname, "public/images"), {
+    maxAge: "1y",
+    immutable: true,
+  })
+)
+
+app.use(
+  "/videos",
+  express.static(join(__dirname, "public/videos"), {
+    maxAge: "1y",
+    immutable: true,
+  })
+)
 
 const port = process.env.PORT
 
