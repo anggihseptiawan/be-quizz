@@ -32,25 +32,22 @@ const io = new Server(httpServer, {
 })
 
 async function addPlayerToRoom(name, hero, room) {
-  const { error } = await supabase
-    .from("wars")
-    .insert({ room_id: room, player: name, hero })
-  if (error) {
-    console.log("error", error.message)
-    return error.message
+  try {
+    await supabase.from("wars").insert({ room_id: room, player: name, hero })
+  } catch {
+    console.log("Error add player to the room!")
   }
 }
 
 async function getPlayersInRoom(room) {
-  // Return the list of players in the room
-  const { data, error } = await supabase
-    .from("wars")
-    .select()
-    .eq("room_id", room)
-  if (error) {
-    return error.message
+  try {
+    // Return the list of players in the room
+    const { data } = await supabase.from("wars").select().eq("room_id", room)
+    return data
+  } catch {
+    console.log("Error get players in a room!")
+    return null
   }
-  return data
 }
 
 // Then you can use `io` to listen the `connection` event and get a socket
@@ -87,34 +84,38 @@ io.on("connection", (socket) => {
   })
 
   socket.on("finish", async ({ room, name }) => {
-    const { error } = await supabase
-      .from("wars")
-      .update({ finish: true })
-      .eq("player", name)
-      .select()
-    if (error) throw Error(error.message)
+    try {
+      await supabase
+        .from("wars")
+        .update({ finish: true })
+        .eq("player", name)
+        .select()
 
-    const { data, err } = await supabase.from("wars").select()
-    if (err) throw Error(err.message)
-    const players = data.sort((a, z) => z.score - a.score)
-    io.to(room).emit("player-finish", players)
+      const { data } = await supabase.from("wars").select()
+      const players = data.sort((a, z) => z.score - a.score)
+      io.to(room).emit("player-finish", players)
+    } catch (error) {
+      console.log("Error finish-up the quiz!")
+    }
   })
 
   socket.on("set-score", async ({ room, name, score }) => {
-    const { data, error } = await supabase
-      .from("wars")
-      .select("score")
-      .eq("player", name)
-    if (error) throw Error(error.message)
+    try {
+      const { data } = await supabase
+        .from("wars")
+        .select("score")
+        .eq("player", name)
 
-    const { data: player, error: err } = await supabase
-      .from("wars")
-      .update({ score: data[0].score + score })
-      .eq("player", name)
-      .select()
+      const { data: player } = await supabase
+        .from("wars")
+        .update({ score: data[0].score + score })
+        .eq("player", name)
+        .select()
 
-    if (err) throw Error(err.message)
-    io.to(room).emit("score", player)
+      io.to(room).emit("score", player)
+    } catch (error) {
+      console.log("Error updating score!")
+    }
   })
 
   socket.on("event", (data) => {
