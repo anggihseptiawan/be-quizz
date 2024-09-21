@@ -5,7 +5,8 @@ import { createClient } from "@supabase/supabase-js"
 import cors from "cors"
 import morgan from "morgan"
 import { fileURLToPath } from "url"
-import { dirname, join } from "path"
+import path, { dirname, join } from "path"
+import fs from "fs"
 import "dotenv/config"
 
 const __filename = fileURLToPath(import.meta.url)
@@ -138,13 +139,36 @@ app.use(
   })
 )
 
-app.use(
-  "/videos",
-  express.static(join(__dirname, "public/videos"), {
-    maxAge: "1y",
-    immutable: true,
+// Serve the m3u8 playlist file
+app.get("/videos/stream.m3u8", (req, res) => {
+  const filePath = path.join(__dirname, "public", "videos", "stream.m3u8")
+  fs.readFile(filePath, (err, data) => {
+    if (err) {
+      res.status(404).send("Video not found!")
+    } else {
+      res.writeHead(200, { "Content-Type": "application/vnd.apple.mpegurl" })
+      res.end(data)
+    }
   })
-)
+})
+
+// Serve the video segments
+app.get("/videos/:segmentName", (req, res) => {
+  const segmentPath = path.join(
+    __dirname,
+    "public",
+    "videos",
+    req.params.segmentName
+  )
+  fs.readFile(segmentPath, (err, data) => {
+    if (err) {
+      res.status(404).send("Segment not found!")
+    } else {
+      res.writeHead(200, { "Content-Type": "video/MP2T" })
+      res.end(data)
+    }
+  })
+})
 
 const port = process.env.PORT
 
